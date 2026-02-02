@@ -117,8 +117,7 @@ export const OrganizationSection = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="text-center max-w-4xl mx-auto"
-          // UPDATE: Memberikan jarak manual 120px ke bawah agar tidak mepet
-          style={{ marginBottom: '120px' }}
+          style={{ paddingBottom: '140px' }} 
         >
           {/* Badge */}
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm text-sm font-bold tracking-wide mb-6" style={{ color: '#2563EB' }}>
@@ -146,7 +145,7 @@ export const OrganizationSection = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
-          style={{ marginBottom: '120px' }}
+          style={{ marginBottom: '120px', marginTop: '20px' }}
         >
           {stats.map((stat, index) => (
             <motion.div
@@ -208,11 +207,16 @@ export const OrganizationSection = () => {
 
           {/* LEVEL 2: MANAGERS & STAFF */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-12 relative z-10">
+             {/* Main Horizontal Line */}
              <div className="hidden lg:block absolute h-[2px]" style={{ ...lineStyle, top: '-60px', left: '12.5%', right: '12.5%' }}></div>
+             
+             {/* Vertical Lines from Horizontal to Headers */}
              <div className="hidden lg:block absolute w-[2px]" style={{ ...lineStyle, top: '-60px', height: '60px', left: '12.5%' }}></div>
              <div className="hidden lg:block absolute w-[2px]" style={{ ...lineStyle, top: '-60px', height: '60px', left: '37.5%' }}></div>
              <div className="hidden lg:block absolute w-[2px]" style={{ ...lineStyle, top: '-60px', height: '60px', left: '62.5%' }}></div>
              <div className="hidden lg:block absolute w-[2px]" style={{ ...lineStyle, top: '-60px', height: '60px', left: '87.5%' }}></div>
+             
+             {/* Mobile Vertical Line */}
              <div className="lg:hidden absolute left-1/2 w-[2px] -translate-x-1/2" style={{ ...lineStyle, top: '-60px', height: '60px' }}></div>
 
             {/* DIVISI */}
@@ -242,7 +246,7 @@ export const OrganizationSection = () => {
               </motion.div>
             ))}
 
-            {/* STAFF KANAN */}
+            {/* STAFF KANAN (ASMAN K3 & SIPIL) */}
             <motion.div variants={itemVariants} className="space-y-4 flex flex-col items-center justify-start pt-0">
                  <div className="w-full space-y-4 mt-0">
                     {staffData.map((staff, index) => (
@@ -259,9 +263,10 @@ export const OrganizationSection = () => {
                                 </div>
                                 <span className="font-bold text-slate-800 text-sm">{staff.name}</span>
                             </div>
-                             {index === 0 && (
-                                <div className="hidden lg:block absolute bottom-full left-1/2 w-[2px] -translate-x-1/2" style={{ ...lineStyle, height: '2rem' }}></div> 
-                             )}
+                             
+                             {/* REMOVED: Connector di atas box pertama (Asman K3) dihapus sesuai permintaan */}
+                             
+                             {/* Konektor antar box (ke bawah) */}
                              {index > 0 && (
                                 <div className="absolute bottom-full left-1/2 w-[2px] h-4 -translate-x-1/2" style={lineStyle}></div>
                              )}
