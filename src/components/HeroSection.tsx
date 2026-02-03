@@ -1,11 +1,63 @@
 import { motion } from "framer-motion";
-import { ChevronDown, Zap, Droplets, Leaf } from "lucide-react";
+import { ChevronDown, Zap, Droplets, Leaf, Edit, Check, X } from "lucide-react";
 import heroImage from "@/assets/fotobrantas.jpeg";
+import { useEffect, useState } from "react";
+import { readSettings, subscribeSettings, writeSettings } from "@/lib/settings";
+import { getUser } from "@/lib/auth";
+import { toast } from "@/hooks/use-toast";
 
 export const HeroSection = () => {
+  const s0 = readSettings();
+  const [karyawan, setKaryawan] = useState<number>(s0.totalKaryawan);
+  const [kapasitas, setKapasitas] = useState<string>(s0.kapasitasTerpasang || "286");
+  const [plta, setPlta] = useState<number>(s0.totalPlta || 13);
+  const [assetValue, setAssetValue] = useState<string>(s0.assetValue || "5.4T");
+
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [draftValue, setDraftValue] = useState<string>("");
+  const [user, setUser] = useState<any>(() => getUser());
+
+  useEffect(() => setUser(getUser()), []);
+
+  useEffect(() => {
+    const unsub = subscribeSettings((next) => {
+      setKaryawan(next.totalKaryawan);
+      setKapasitas(next.kapasitasTerpasang || "286");
+      setPlta(next.totalPlta || 13);
+      setAssetValue(next.assetValue || "5.4T");
+    });
+    return unsub;
+  }, []);
+
+  const startEdit = (key: string, current: string) => { setEditingKey(key); setDraftValue(current); };
+  const cancelEdit = () => { setEditingKey(null); setDraftValue(""); };
+  const saveEdit = (key: string) => {
+    const v = draftValue.trim();
+    if (!v) return toast({ title: 'Gagal', description: 'Nilai kosong' });
+
+    if (key === 'kapasitas') {
+      writeSettings({ kapasitasTerpasang: v });
+    }
+    if (key === 'plta') {
+      const n = Number(v);
+      if (Number.isNaN(n)) return toast({ title: 'Gagal', description: 'Masukkan angka untuk PLTA' });
+      writeSettings({ totalPlta: n });
+    }
+    if (key === 'karyawan') {
+      const n = Number(v);
+      if (Number.isNaN(n)) return toast({ title: 'Gagal', description: 'Masukkan angka untuk Karyawan' });
+      writeSettings({ totalKaryawan: n });
+    }
+    if (key === 'asset') {
+      writeSettings({ assetValue: v });
+    }
+
+    toast({ title: 'Disimpan', description: 'Statistik berhasil diperbarui' });
+    setEditingKey(null);
+  };
+
   return (
-    <section id="beranda" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+    <section id="beranda" className="relative min-h-screen flex items-center justify-center overflow-hidden">      {/* Background Image */}
       <div className="absolute inset-0">
         <img
           src={heroImage}
@@ -67,23 +119,50 @@ export const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-3xl mx-auto"
           >
-            {[
-              { icon: Zap, value: "286", unit: "MW", label: "Kapasitas Terpasang" },
-              { icon: Droplets, value: "13", unit: "Unit", label: "PLTA" },
-              { value: "533", unit: "Orang", label: "Karyawan" },
-              { value: "5.4", unit: "T", label: "Nilai Aset (Rp)" },
-            ].map((stat, index) => (
+            {/* dynamic karyawan value from settings with inline editing for admin */}
+          {(() => {
+            const stats = [
+              { key: 'kapasitas', icon: Zap, value: kapasitas, unit: 'MW', label: 'Kapasitas Terpasang' },
+              { key: 'plta', icon: Droplets, value: String(plta), unit: 'Unit', label: 'PLTA' },
+              { key: 'karyawan', value: String(karyawan), unit: 'Orang', label: 'Karyawan' },
+              { key: 'asset', value: assetValue, unit: 'T', label: 'Nilai Aset (Rp)' },
+            ];
+
+            return stats.map((stat, index) => (
               <div
                 key={index}
-                className="p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20"
+                className="p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 relative"
               >
+                {user?.email === 'admin' && (
+                  <div className="absolute top-3 right-3 flex gap-1">
+                    {editingKey === stat.key ? (
+                      <>
+                        <button onClick={() => saveEdit(stat.key)} className="p-1 rounded-md bg-green-600 text-white"><Check className="w-4 h-4" /></button>
+                        <button onClick={cancelEdit} className="p-1 rounded-md border"><X className="w-4 h-4" /></button>
+                      </>
+                    ) : (
+                      <button onClick={() => startEdit(stat.key, stat.value)} className="p-1 rounded-md hover:bg-slate-100"><Edit className="w-4 h-4 text-slate-600" /></button>
+                    )}
+                  </div>
+                )}
+
                 <div className="text-3xl md:text-4xl font-bold text-primary-foreground">
-                  {stat.value}
-                  <span className="text-lg text-secondary">{stat.unit}</span>
+                  {editingKey === stat.key ? (
+                    <span className="inline-flex items-center gap-2">
+                      <input value={draftValue} onChange={(e) => setDraftValue(e.target.value)} className="w-16 rounded-md border px-2 py-1 text-black" />
+                      <span className="text-lg text-secondary">{stat.unit}</span>
+                    </span>
+                  ) : (
+                    <>
+                      {stat.value}
+                      <span className="text-lg text-secondary">{stat.unit}</span>
+                    </>
+                  )}
                 </div>
                 <p className="text-sm text-primary-foreground/70 mt-1">{stat.label}</p>
               </div>
-            ))}
+            ));
+          })()}
           </motion.div>
         </div>
       </div>

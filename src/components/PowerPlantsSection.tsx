@@ -5,11 +5,11 @@ import { MapPin, Droplets, Activity, Settings, Zap, Gauge } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// --- TIPE DATA ---
+// --- TIPE DATA DIPERBARUI (Unit 2 jadi Opsional) ---
 type MachineData = {
   label: string;
   unit1: string;
-  unit2?: string;
+  unit2?: string; // Diubah jadi tanda tanya (?) agar tidak error jika dihapus
   unit3?: string;
   unit4?: string;
 };
@@ -21,12 +21,12 @@ type PowerPlantDetail = {
   image: string;
   description: string;
   // Detail Teknis
-  cod?: string;         // Commercial Operation Date
-  type?: string;        // Tipe Turbin
-  head?: string;        // Ketinggian air
-  rpm?: string;         // Kecepatan putar
-  machineData?: MachineData[];    // Tabel Data Mesin (Opsional)
-  generatorData?: MachineData[];  // Tabel Data Generator (Opsional)
+  cod?: string;
+  type?: string;
+  head?: string;
+  rpm?: string;
+  machineData?: MachineData[];
+  generatorData?: MachineData[];
 };
 
 // --- DATA PLTA LENGKAP ---
@@ -123,7 +123,7 @@ const powerPlants: PowerPlantDetail[] = [
     type: "HORIZONTAL KAPLAN",
     head: "8.5 m",
     rpm: "150 rpm",
-    // PERBAIKAN: Hapus Unit 2
+    // DATA BARU: Unit 2 DIHAPUS
     machineData: [
       { label: "Jenis", unit1: "Turbin Air" },
       { label: "Merk", unit1: "TOSHIBA" },
@@ -153,21 +153,22 @@ const powerPlants: PowerPlantDetail[] = [
     type: "VERTICAL FRANCIS",
     head: "69.6 m",
     rpm: "375 rpm",
+    // DATA BARU: Unit 2 DIHAPUS karena Tulungagung 1x18MW
     machineData: [
-      { label: "Jenis", unit1: "Turbin Air", unit2: "Turbin Air" },
-      { label: "Merk", unit1: "VOEST-ALPINE M.C.E.", unit2: "VOEST-ALPINE M.C.E." },
-      { label: "Model/Type", unit1: "F.S.V. 300/1,75 Francis", unit2: "F.S.V. 300/1,75 Francis" },
-      { label: "Nomor Seri", unit1: "MB 9 – 097/2", unit2: "MB 9 – 097/2" },
-      { label: "Buatan", unit1: "Austria/1988", unit2: "Austria/1988" },
-      { label: "Daya (kW)", unit1: "19000", unit2: "19000" },
+      { label: "Jenis", unit1: "Turbin Air" },
+      { label: "Merk", unit1: "VOEST-ALPINE M.C.E." },
+      { label: "Model/Type", unit1: "F.S.V. 300/1,75 Francis" },
+      { label: "Nomor Seri", unit1: "MB 9 – 097/2" },
+      { label: "Buatan", unit1: "Austria/1988" },
+      { label: "Daya (kW)", unit1: "19000" },
     ],
     generatorData: [
-      { label: "Merk", unit1: "ELIN", unit2: "ELIN" },
-      { label: "Tipe", unit1: "SSV 33C/16 – 140", unit2: "SSV 33C/16 – 140" },
-      { label: "Kapasitas (kVA)", unit1: "20000", unit2: "20000" },
-      { label: "Tegangan (V)", unit1: "11000", unit2: "11000" },
-      { label: "Arus (A)", unit1: "1050", unit2: "1050" },
-      { label: "Power Factor", unit1: "0,9", unit2: "0,9" },
+      { label: "Merk", unit1: "ELIN" },
+      { label: "Tipe", unit1: "SSV 33C/16 – 140" },
+      { label: "Kapasitas (kVA)", unit1: "20000" },
+      { label: "Tegangan (V)", unit1: "11000" },
+      { label: "Arus (A)", unit1: "1050" },
+      { label: "Power Factor", unit1: "0,9" },
     ]
   },
   { 
@@ -180,7 +181,7 @@ const powerPlants: PowerPlantDetail[] = [
     type: "VERTICAL FRANCIS",
     head: "54.0 m",
     rpm: "500 rpm",
-    // PERBAIKAN: Hapus Unit 2
+    // DATA BARU: Unit 2 DIHAPUS
     machineData: [
       { label: "Jenis", unit1: "Turbin Air" },
       { label: "Merk", unit1: "Toshiba Corporation" },
@@ -211,7 +212,7 @@ const powerPlants: PowerPlantDetail[] = [
     type: "VERTICAL KAPLAN",
     head: "37.1 m",
     rpm: "500 rpm",
-    // PERBAIKAN: Hapus Unit 2
+    // DATA BARU: Unit 2 DIHAPUS
     machineData: [
       { label: "Jenis", unit1: "Turbin Air" },
       { label: "Merk", unit1: "EBARA" },
@@ -359,7 +360,6 @@ const powerPlants: PowerPlantDetail[] = [
     type: "HORIZONTAL FRANCIS",
     head: "183.5 m",
     rpm: "1000 rpm",
-    // PERBAIKAN: Hapus Unit 2 (Unit 1 saja)
     machineData: [
       { label: "Jenis", unit1: "Turbin Air" },
       { label: "Merk", unit1: "EBARA" },
@@ -501,6 +501,7 @@ export const PowerPlantsSection = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Image */}
                 <div className="lg:col-span-5">
+                   {/* UPDATE: h-64 lg:h-96 agar ukurannya KONSISTEN (Fixed Height) */}
                    <div className="rounded-xl overflow-hidden border-4 border-slate-100 shadow-lg relative h-64 lg:h-96 min-h-[250px]">
                       <img 
                         src={selectedPlant?.image} 

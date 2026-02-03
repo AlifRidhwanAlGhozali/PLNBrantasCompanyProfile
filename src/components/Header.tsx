@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthDialog from "@/components/AuthDialog";
+import { getUser, logout } from "@/lib/auth";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const navLinks = [
   { href: "#beranda", label: "Beranda" },
@@ -18,6 +21,20 @@ export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // refresh user state when auth dialog is opened/closed
+  useEffect(() => {
+    setUser(getUser());
+  }, [isAuthOpen]);
+
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+    toast({ title: "Keluar", description: "Anda telah keluar" });
+    // optional: close mobile menu
+    setIsMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,8 +84,13 @@ export const Header = () => {
                 {link.label}
               </a>
             ))}
+
             <div className="flex items-center gap-2 ml-4">
-              <Button variant="default" size="sm" onClick={() => setIsAuthOpen(true)}>Masuk</Button>
+              {user ? (
+                <Button variant="default" size="sm" onClick={handleLogout}>Keluar</Button>
+              ) : (
+                <Button variant="default" size="sm" onClick={() => setIsAuthOpen(true)}>Masuk</Button>
+              )}
             </div>
           </nav>
 
@@ -104,8 +126,13 @@ export const Header = () => {
                   {link.label}
                 </a>
               ))}
+
               <div className="pt-2 border-t border-border flex gap-2">
-                <Button variant="default" onClick={() => setIsAuthOpen(true)}>Masuk</Button>
+                {user ? (
+                  <Button variant="default" onClick={handleLogout}>Keluar</Button>
+                ) : (
+                  <Button variant="default" onClick={() => setIsAuthOpen(true)}>Masuk</Button>
+                )}
               </div>
             </nav>
           </motion.div>

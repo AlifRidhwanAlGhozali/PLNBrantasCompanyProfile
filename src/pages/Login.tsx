@@ -44,6 +44,16 @@ export default function Login() {
             <Button type="submit" variant="default" className="bg-primary text-primary-foreground">Masuk</Button>
           </div>
         </form>
+
+        {!import.meta.env?.PROD && (
+          <div className="mt-4 p-3 rounded-md bg-primary/5 border border-primary/10 text-sm text-primary-700">
+            <span className="font-semibold">Demo:</span>
+            <span className="ml-2">User: <code className="font-mono">admin</code></span>
+            <span className="mx-2">•</span>
+            <span>Password: <code className="font-mono">admin</code></span>
+          </div>
+        )}
+
       </div>
     </div>
   );

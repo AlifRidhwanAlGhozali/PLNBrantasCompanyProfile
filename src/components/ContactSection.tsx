@@ -1,11 +1,36 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
-import { MapPin, Phone, Globe, Mail } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { MapPin, Phone, Globe, Mail, Edit, Check, X } from "lucide-react";
+import { readSettings, subscribeSettings, writeSettings } from "@/lib/settings";
+import { getUser } from "@/lib/auth";
+import { toast } from "@/hooks/use-toast";
 
 export const ContactSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const [contact, setContact] = useState(() => readSettings().contact);
+  useEffect(() => {
+    const unsub = subscribeSettings((s) => setContact(s.contact));
+    return unsub;
+  }, []);
+
+  const [user, setUser] = useState<any>(() => getUser());
+  useEffect(() => setUser(getUser()), []);
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(contact);
+
+  useEffect(() => setDraft(contact), [contact]);
+
+  const startEdit = () => setEditing(true);
+  const cancelEdit = () => { setDraft(contact); setEditing(false); };
+  const saveEdit = () => {
+    writeSettings({ contact: draft });
+    toast({ title: 'Disimpan', description: 'Informasi kontak berhasil disimpan' });
+    setEditing(false);
+  };
 
   return (
     <section id="kontak" className="py-24 bg-background" ref={ref}>
@@ -24,6 +49,20 @@ export const ContactSection = () => {
           </h2>
         </motion.div>
 
+        {/* admin edit controls */}
+        {user?.email === 'admin' && (
+          <div className="text-center mb-6">
+            {!editing ? (
+              <button onClick={startEdit} className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary text-white"><Edit className="w-4 h-4" /> Edit Kontak</button>
+            ) : (
+              <div className="inline-flex gap-2">
+                <button onClick={saveEdit} className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary text-white"><Check className="w-4 h-4" /> Simpan</button>
+                <button onClick={cancelEdit} className="inline-flex items-center gap-2 px-3 py-2 rounded-md border"><X className="w-4 h-4" /> Batal</button>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* PT PLN Nusantara Power */}
           <motion.div
@@ -41,10 +80,11 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground">Kantor Pusat</p>
-                  <p className="text-sm text-muted-foreground">
-                    Gedung Office 18 Park, Jl. T.B. Simatupang<br />
-                    Jakarta Selatan - 12520
-                  </p>
+                  {editing ? (
+                    <textarea className="w-full rounded-md border px-3 py-2 text-sm text-black" rows={3} value={draft.companyAddress} onChange={(e) => setDraft({ ...draft, companyAddress: e.target.value })} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground" style={{ whiteSpace: 'pre-line' }}>{contact.companyAddress}</p>
+                  )} 
                 </div>
               </div>
 
@@ -54,7 +94,11 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground">Telepon</p>
-                  <p className="text-sm text-muted-foreground">021-4283180</p>
+                  {editing ? (
+                    <input className="w-full rounded-md border px-3 py-2 text-sm text-black" value={draft.phone} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{contact.phone}</p>
+                  )} 
                 </div>
               </div>
 
@@ -64,14 +108,11 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground">Website</p>
-                  <a 
-                    href="https://www.plnnp.co.id" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    www.plnnp.co.id
-                  </a>
+                  {editing ? (
+                    <input className="w-full rounded-md border px-3 py-2 text-sm text-black" value={draft.website} onChange={(e) => setDraft({ ...draft, website: e.target.value })} />
+                  ) : (
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{contact.website.replace(/^https?:\/\//, '')}</a>
+                  )} 
                 </div>
               </div>
             </div>
@@ -93,10 +134,11 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium">Wilayah Kerja</p>
-                  <p className="text-sm text-primary-foreground/80">
-                    Blitar, Tulungagung, Madiun, dan Ponorogo<br />
-                    Jawa Timur, Indonesia
-                  </p>
+                  {editing ? (
+                    <textarea className="w-full rounded-md border px-3 py-2 text-sm text-black" rows={3} value={draft.unitRegion} onChange={(e) => setDraft({ ...draft, unitRegion: e.target.value })} />
+                  ) : (
+                    <p className={"text-sm " + (editing ? "text-black" : "text-primary-foreground/80")} style={{ whiteSpace: 'pre-line' }}>{contact.unitRegion}</p>
+                  )} 
                 </div>
               </div>
 
@@ -106,16 +148,21 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="font-medium">Pelanggan</p>
-                  <p className="text-sm text-primary-foreground/80">
-                    UP2B, UID Jawa Timur<br />
-                    UP3 Malang, UP3 Kediri
-                  </p>
+                  {editing ? (
+                    <textarea className="w-full rounded-md border px-3 py-2 text-sm text-black" rows={2} value={draft.unitCustomer} onChange={(e) => setDraft({ ...draft, unitCustomer: e.target.value })} />
+                  ) : (
+                    <p className={"text-sm " + (editing ? "text-black" : "text-primary-foreground/80")} style={{ whiteSpace: 'pre-line' }}>{contact.unitCustomer}</p>
+                  )} 
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-primary-foreground/20">
-                <p className="text-sm text-primary-foreground/80">Network System</p>
-                <p className="font-semibold">20 kV & 25 kV</p>
+                <p className={"text-sm " + (editing ? "text-black" : "text-primary-foreground/80")}>Network System</p>
+                {editing ? (
+                  <input className="w-full rounded-md border px-3 py-2 text-sm font-semibold text-black" value={draft.networkSystem} onChange={(e) => setDraft({ ...draft, networkSystem: e.target.value })} />
+                ) : (
+                  <p className={"font-semibold " + (editing ? "text-black" : "text-primary-foreground")}>{contact.networkSystem}</p>
+                )}
               </div>
             </div>
           </motion.div>

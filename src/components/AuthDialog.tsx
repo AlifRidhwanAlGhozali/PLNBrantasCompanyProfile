@@ -17,13 +17,13 @@ export default function AuthDialog({ open, setOpen }: { open: boolean; setOpen: 
     const u = getUser();
     if (open) {
       if (u) {
-        setUser({ name: u.name, email: u.email });
-        setView("profile");
+        // close dialog immediately if already logged in to avoid showing profile
+        setOpen(false);
       } else {
         setView("login");
       }
     }
-  }, [open]);
+  }, [open, setOpen]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +31,8 @@ export default function AuthDialog({ open, setOpen }: { open: boolean; setOpen: 
       const u = login(email, password);
       setUser({ name: u.name, email: u.email });
       toast({ title: "Login berhasil", description: `Selamat datang, ${u.name}` });
-      setView("profile");
+      // close dialog and let header show logout button
+      setOpen(false);
     } catch (err: any) {
       toast({ title: "Login gagal", description: err?.message || "Periksa kredensial", variant: "destructive" });
     }

@@ -19,6 +19,22 @@ function writeUsers(users: User[]) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
+// Development helper: pastikan ada user admin default (email: "admin", password: "admin").
+// Tidak akan membuat default ketika aplikasi berjalan di mode produksi.
+if (!import.meta.env?.PROD) {
+  (function ensureDefaultAdmin() {
+    try {
+      const users = readUsers();
+      if (!users.find((u) => u.email === "admin")) {
+        users.push({ name: "Admin", email: "admin", password: "admin" });
+        writeUsers(users);
+      }
+    } catch (e) {
+      // ignore
+    }
+  })();
+}
+
 export function signup({ name, email, password }: User) {
   const users = readUsers();
   if (users.find((u) => u.email === email)) {
@@ -50,4 +66,19 @@ export function getUser() {
 
 export function logout() {
   localStorage.removeItem(AUTH_USER_KEY);
+}
+
+// admin utilities
+export function listUsers() {
+  return readUsers();
+}
+
+export function deleteUser(email: string) {
+  const users = readUsers().filter((u) => u.email !== email);
+  writeUsers(users);
+  // if deleting currently logged in user, sign out
+  try {
+    const current = getUser();
+    if (current && current.email === email) logout();
+  } catch {}
 }
