@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import AuthDialog from "@/components/AuthDialog";
 
 const navLinks = [
   { href: "#beranda", label: "Beranda" },
@@ -16,6 +17,7 @@ const navLinks = [
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +67,9 @@ export const Header = () => {
                 {link.label}
               </a>
             ))}
+            <div className="flex items-center gap-2 ml-4">
+              <Button variant="default" size="sm" onClick={() => setIsAuthOpen(true)}>Masuk</Button>
+            </div>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -99,10 +104,14 @@ export const Header = () => {
                   {link.label}
                 </a>
               ))}
+              <div className="pt-2 border-t border-border flex gap-2">
+                <Button variant="default" onClick={() => setIsAuthOpen(true)}>Masuk</Button>
+              </div>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+      <AuthDialog open={isAuthOpen} setOpen={setIsAuthOpen} />
     </motion.header>
   );
 };

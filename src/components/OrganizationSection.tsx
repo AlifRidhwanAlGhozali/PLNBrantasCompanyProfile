@@ -201,7 +201,7 @@ export const OrganizationSection = () => {
                 style={{ backgroundColor: '#10B981' }} 
             >
               <p className="font-bold text-xl">Senior Manager</p>
-              <p className="text-sm text-white/90 mt-1">Tim Manajemen (4 Orang)</p>
+              <p className="text-sm text-white/90 mt-1">Tim Manajemen (1 Orang)</p>
             </motion.div>
           </div>
 
